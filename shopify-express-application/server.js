@@ -10,8 +10,11 @@ const request = require('request-promise');
 const apiKey = process.env.SHOPIFY_API_KEY;
 const apiSecret = process.env.SHOPIFY_API_SECRET;
 const scopes = 'read_products';
-const forwardingAddress = "https://3430e628.ngrok.io"; // Replace this with your HTTPS Forwarding address
+const forwardingAddress = "https://154825fd.ngrok.io"; // Replace this with your HTTPS Forwarding address
 const PORT = process.env.PORT || 3000;
+
+const Shopify = require('shopify-api-node');
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -102,6 +105,25 @@ app.get('/shopify/callback', (req, res) => {
     res.status(400).send('Required parameters missing');
   }
 });
+
+app.get('/test', function(req, res){
+//    const shopify = new Shopify({
+//        shopName: process.env.SHOPIFY_NAME,
+//        apiKey: process.env.SHOPIFY_API_KEY,
+//        password: process.env.SHOPIFY_PASS,
+//    });
+//    
+//    shopify.on('callLimits', limits => res.json(limites)); 
+
+    const shopify = new Shopify({
+        shopName: process.env.SHOPIFY_NAME,
+        accessToken: process.env
+    });
+    
+    shopify.order.list({ limit: 5 })
+        .then(orders => console.log(orders))
+        .catch(err => console.error(err));
+})
 
 app.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);

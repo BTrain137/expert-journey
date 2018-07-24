@@ -15,6 +15,7 @@
     "express": "^4.16.3",
     "nonce": "^1.0.4",
     "request": "^2.87.0",
-    "request-promise": "^4.2.2"
+    "request-promise": "^4.2.2",
+    "shopify-api-node": "^2.14.0"
   }
 }
