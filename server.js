@@ -1,4 +1,4 @@
-const dotenv = require("dotenv").config()
+const dotenv = require("dotenv")
     , express = require("express")
     , app = express()
     , crypto = require("crypto")
@@ -6,13 +6,21 @@ const dotenv = require("dotenv").config()
     , nonce = require("nonce")()
     , request = require("request-promise")
     , querystring = require("querystring")
+    
+dotenv.config();
 
 const apiKey = process.env.SHOPIFY_API_KEY
     , apiSecret = process.env.SHOPIFY_API_SECRET
     , scopes = process.env.SHOPIFY_SCOPES
     , forwardingAddress = process.env.SHOPIFY_CALLBACK_URL 
-    , PORT = process.env.PORT || 3000
+    , PORT = process.env.PORT || 3003
 
+
+// Serve up static assets (usually on heroku)
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static("src/build"));
+}
+  
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
@@ -80,6 +88,7 @@ app.get("/shopify/callback", (req, res) => {
         request.post(accessTokenRequestUrl, { json: accessTokenPayload })
             .then((accessTokenResponse) => {
                 const accessToken = accessTokenResponse.access_token;
+                console.log("accessToken", accessToken);
                 // DONE: Use access token to make API call to "shop" endpoint
                 const shopRequestUrl = "https://" + shop + "/admin/shop.json";
                 const shopRequestHeaders = {
@@ -112,12 +121,13 @@ app.get("/check", function (req, res) {
         "X-Shopify-Access-Token": process.env.SHOPIFY_TOKEN,
     };
 
-    request.get(shopRequestUrl, { headers: shopRequestHeaders })
+    request.get({uri: shopRequestUrl, headers: shopRequestHeaders })
         .then((shopResponse) => {
-            res.status(200).end(shopResponse);
+            res.json(JSON.parse(shopResponse));
         })
         .catch((error) => {
-            res.status(error.statusCode).send(error.error.error_description);
+            console.log(error);
+            res.status(500);
         });
 });
 
@@ -135,7 +145,8 @@ app.get("/play", function (req, res) {
             res.json(JSON.parse(shopResponse));
         })
         .catch((error) => {
-            res.status(error.statusCode).send(error.error.error_description);
+            console.log(error);
+            res.status(500);
         });
 });
 
